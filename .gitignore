@@ -7,3 +7,4 @@ data/raw/
 data/embeddings/
 logs/
 digests/
+*.npy

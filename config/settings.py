@@ -38,3 +38,16 @@ GROQ_MODEL      = "llama-3.3-70b-versatile"
 
 # ── Embedding model ──
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+
+# ── HuggingFace / Open Paws alignment layer ──
+HF_TOKEN           = os.getenv("HF_TOKEN", "")
+OPENPAWS_MODEL     = "microsoft/Phi-3.5-mini-instruct"
+OPENPAWS_FALLBACK  = "groq"       # If HF fails, use Groq with alignment prompt
+
+# ── Ensemble weights (must sum to 1.0) ──
+ENSEMBLE_WEIGHTS = {
+    "keyword":   0.15,
+    "embedding": 0.20,
+    "groq":      0.45,
+    "openpaws":  0.20,
+}
