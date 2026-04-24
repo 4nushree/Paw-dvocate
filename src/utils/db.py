@@ -333,6 +333,8 @@ def save_digest_record(record: dict):
     """Log a completed digest to digest_history."""
     conn = get_connection()
     now = utcnow()
+    # Disable FK for this insert — digest_history has no foreign keys
+    conn.execute("PRAGMA foreign_keys = OFF")
     conn.execute("""
         INSERT INTO digest_history (
             digest_filename, digest_filepath,
@@ -349,4 +351,5 @@ def save_digest_record(record: dict):
         )
     """, {**record, "generated_at": now})
     conn.commit()
+    conn.execute("PRAGMA foreign_keys = ON")
     conn.close()
