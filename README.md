@@ -1,6 +1,6 @@
 # 🐾 Paw-dvocate
 
-> An applied AI legislative monitoring system that detects, classifies, and prioritises animal-related legislation across US state legislatures - built for advocacy organisations who can't afford to miss a policy window.
+> An applied AI legislative monitoring system that detects, classifies, and prioritises animal-related legislation across US state legislatures using LegiScan bulk session JSON exports (California, Texas, and New York). Designed for advocacy organisations who cannot afford to miss policy intervention windows.
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://paw-dvocate-jivv5kdgrryrvsydvuxbav.streamlit.app/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
