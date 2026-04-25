@@ -3,7 +3,7 @@ venv/
 __pycache__/
 *.pyc
 data/raw/
-data/db/
+# data/db/  # Commented out so the database is uploaded for Streamlit Cloud
 data/embeddings/
 logs/
 digests/
