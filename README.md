@@ -43,7 +43,8 @@ Animal welfare organisations currently rely on listservs, manual legislative sea
 
 ## System Pipeline
 
-> **[System Architecture]**<img width="1737" height="2949" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/eb154172-64fa-4b6e-b41d-ea1dc887e681" />
+> **[System Architecture]**<img width="966" height="1628" alt="image" src="https://github.com/user-attachments/assets/2c61bb51-b5ef-489f-892b-91adff3951cc" />
+
 
 
 ## Technical Architecture
@@ -60,9 +61,6 @@ Bills passing Stage 1 are encoded using `sentence-transformers` (`all-MiniLM-L6-
 
 **Stage 3 - Groq API Reasoning Classifier**
 Bills above the similarity threshold are sent to **Llama-3.3-70B via Groq's free API tier** for zero-shot classification into `pro-animal`, `anti-animal`, or `neutral`. The LLM also returns a confidence score and a plain-language reasoning summary.
-
-**Stage 4 - OpenPaws Alignment Scoring**
-The [OpenPaws 8B Instruct](https://huggingface.co/open-paws/8B-instruct-chat) model scores each classified bill for ethical alignment with animal liberation principles and generates an advocacy framing summary for the digest.
 
 **Ensemble Ranking**
 All four signal layers are combined into a final `relevance_score` using weighted averaging. The ensemble weighting is: keyword (15%) + embedding (20%) + Groq confidence (45%) + OpenPaws alignment (20%).
@@ -118,7 +116,7 @@ pawdvocate/
 │   │   ├── embedder.py       ← Stage 2: sentence-transformer encoding
 │   │   ├── similarity.py     ← Stage 2: cosine similarity scoring
 │   │   ├── groq_classifier.py← Stage 3: Llama-3.3-70B classification
-│   │   ├── alignment.py      ← Stage 4: OpenPaws alignment scoring
+│   │   ├── alignment.py      ← Stage 4: Alignment scoring
 │   │   └── ensemble.py       ← Weighted ensemble + final label
 │   │
 │   ├── digest/
@@ -169,19 +167,16 @@ Built the similarity threshold logic to identify which embedding-scored bills wa
 **Phase 6 - Groq LLM Classifier Integration**
 Integrated the Groq API (`llama-3.3-70b-versatile`) as the primary reasoning classifier. Returns classification label, confidence score (0–1), and plain-language reasoning stored in the `classifications` table.
 
-**Phase 7 - OpenPaws Alignment Scoring + Ensemble Ranking**
-Integrated the OpenPaws 8B Instruct model for ethical alignment scoring. Built the weighted ensemble that combines all four signal layers into a final `relevance_score` and `risk_level`.
-
-**Phase 8 - Markdown Digest Generator + Pipeline Orchestrator**
+**Phase 7 - Markdown Digest Generator + Pipeline Orchestrator**
 Built the weekly digest generator producing structured Markdown reports covering new bills, updated bills, high-risk alerts, and welfare opportunities. Built `pipeline.py` as the single-command orchestrator.
 
-**Phase 9 - Evaluation Benchmark**
+**Phase 8 - Evaluation Benchmark**
 Built `tests/evaluation_phase9.py` to validate classification accuracy against manually labelled samples. Target: ≥85% accuracy. Results saved to `logs/evaluation_report.txt`.
 
-**Phase 10 - Scheduler Automation**
+**Phase 9 - Scheduler Automation**
 Integrated APScheduler to run the full pipeline daily at 02:00 and generate digests weekly on Sundays at 09:00.
 
-**Phase 11 - Streamlit Dashboard**
+**Phase 10 - Streamlit Dashboard**
 Built the interactive advocacy dashboard with state filtering, risk-level grouping, and per-bill reasoning display.
 
 ---
