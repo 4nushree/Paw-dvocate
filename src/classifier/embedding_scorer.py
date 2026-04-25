@@ -39,7 +39,7 @@ def load_model():
         from sentence_transformers import SentenceTransformer
         print(f"  Loading embedding model: {EMBEDDING_MODEL}...")
         _model = SentenceTransformer(EMBEDDING_MODEL)
-        print(f"  Model loaded. Vector dim: {_model.get_embedding_dimension()}")
+        print(f"  Model loaded. Vector dim: {_model.get_sentence_embedding_dimension()}")
     return _model
 
 

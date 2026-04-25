@@ -57,9 +57,9 @@ def run_stage_ingest():
     """Ingests raw LegiScan JSON data from data/raw/."""
     print_stage(0, "Data Ingestion")
 
-    from src.api.ingestor import ingest_all_states
+    from src.api.ingestor import ingest_all_json_files
 
-    result = ingest_all_states(verbose=True)
+    result = ingest_all_json_files(verbose=True)
     return result
 
 
