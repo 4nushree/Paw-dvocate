@@ -43,27 +43,6 @@ Animal welfare organisations currently rely on listservs, manual legislative sea
 
 ## System Pipeline
 
-```
-LegiScan Bulk Dataset (JSON)
-            ↓
-    Ingestion Pipeline
-            ↓
-      SQLite Storage
-            ↓
-    Keyword Filter (Stage 1)
-            ↓
-  Embedding Similarity (Stage 2)
-            ↓
-  Groq LLM Classifier (Stage 3)
-            ↓
- OpenPaws Alignment Scoring (Stage 4)
-            ↓
-    Ensemble Relevance Ranking
-            ↓
-     Weekly Digest Generator
-            ↓
-   Streamlit Advocacy Dashboard
-```
 > **[System Architecture]**<img width="1737" height="2949" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/eb154172-64fa-4b6e-b41d-ea1dc887e681" />
 
 
