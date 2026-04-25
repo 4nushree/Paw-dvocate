@@ -1,371 +1,393 @@
-# 🐾 Paw-dvocate — Animal Legislation Intelligence Pipeline
+# 🐾 Paw-dvocate
 
-An automated AI-powered system that monitors, classifies, and generates intelligence digests for animal-related legislation across **California**, **Texas**, and **New York**.
+> An applied AI legislative monitoring system that detects, classifies, and prioritises animal-related legislation across US state legislatures - built for advocacy organisations who can't afford to miss a policy window.
 
-Built with Python, SQLite, sentence-transformers, Groq LLM, and Streamlit. **100% free tools.**
-
----
-
-## 📖 Project Overview
-
-Paw-dvocate is an applied AI pipeline designed to automate the discovery and analysis of animal-related legislation across United States state legislatures. By bridging the gap between raw policy data and actionable insights, the system ensures that advocacy organizations can influence the legislative process before critical deadlines pass.
-
-### The Problem: The "Awareness Gap"
-
-Currently, many advocacy groups rely on manual web searches, word-of-mouth, or high-traffic listservs to find relevant bills. This fragmented approach often leads to "late discovery"—finding out about a bill only after the public comment window has closed or a crucial vote has already taken place. In the fast-moving environment of state politics, missing even a 48-hour window can mean the difference between a policy's success or failure.
-
-### Who Benefits?
-
-- **Advocacy Organizations**: Gain a "first-look" advantage to mobilize supporters early.
-- **Policy Researchers**: Save hundreds of hours of manual filtering by accessing pre-categorized bill sets.
-- **Engineering Interns**: Access a modular, real-world example of how to apply Natural Language Processing (NLP) to civic tech.
-
-### Why Paw-dvocate?
-
-Manual monitoring is often reactive and inconsistent, relying on human effort to scan thousands of pages of text. Paw-dvocate is proactive and persistent; it doesn't just look for keywords—it understands intent. By leveraging semantic analysis, it can distinguish between a bill that mentions "animals" in a passing agricultural context and one that significantly impacts welfare standards. This precision moves advocacy from a reactive stance to a proactive strategy.
-
-For detailed documentation, see [docs/project_overview.md](docs/project_overview.md).
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://paw-dvocate-jivv5kdgrryrvsydvuxbav.streamlit.app/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![SQLite](https://img.shields.io/badge/database-SQLite-lightgrey.svg)](https://www.sqlite.org/)
+[![Groq](https://img.shields.io/badge/LLM-Groq%20Llama%203.3--70B-orange.svg)](https://groq.com/)
 
 ---
 
-## 📊 What It Does
+## Why Paw-dvocate Matters
 
-1. **Ingests** 28,000+ bills from LegiScan bulk exports (CA, TX, NY)
-2. **Filters** candidates using tiered keyword matching (strong/moderate/weak)
-3. **Scores** semantic similarity using `all-MiniLM-L6-v2` embeddings
-4. **Classifies** using Groq's Llama 3.3 70B with structured reasoning
-5. **Aligns** against Open Paws advocacy framing (-1 to +1 scale)
-6. **Combines** all signals via weighted ensemble (85%+ accuracy target)
-7. **Generates** weekly Markdown intelligence digests
-8. **Emails** digests automatically (optional Gmail SMTP)
-9. **Visualizes** everything in a Streamlit dashboard
+Animal welfare organisations currently rely on listservs, manual legislative searches, and word of mouth to track relevant bills. By the time a harmful bill reaches the floor - or a protective bill dies in committee - the intervention window has already closed.
+
+**Paw-dvocate automates early detection and prioritisation** of animal welfare legislation across three high-volume US state legislatures, giving advocates the intelligence layer they need to act when it matters.
 
 ---
 
-## 🗂️ Project Structure
+## Live Demo
+
+🌐 **Dashboard:** [paw-dvocate-jivv5kdgrryrvsydvuxbav.streamlit.app](https://paw-dvocate-jivv5kdgrryrvsydvuxbav.streamlit.app/)
+
+📁 **Repository:** [github.com/4nushree/Paw-dvocate](https://github.com/4nushree/Paw-dvocate)
+
+> **[Live Dashboard]**<img width="1919" height="911" alt="image" src="https://github.com/user-attachments/assets/92638379-f097-487e-9685-36e683d8c6f9" />
+
+
+---
+
+## Core Features
+
+- Monitors **28,600+ bills** across California, Texas, and New York
+- Detects animal-related legislation using a 4-layer AI classifier stack
+- Classifies every bill as **pro-animal**, **anti-animal**, or **neutral**
+- Scores each bill for **advocacy relevance** and **risk level**
+- Generates **weekly Markdown intelligence digests**
+- Exposes results through an **interactive Streamlit dashboard**
+- Runs automatically on a daily schedule via **APScheduler**
+
+---
+
+## System Pipeline
 
 ```
-legislation_monitor/
-│
-├── main.py                       # Pipeline CLI orchestrator
-├── .env                          # API keys (GROQ_API_KEY, etc.)
+LegiScan Bulk Dataset (JSON)
+            ↓
+    Ingestion Pipeline
+            ↓
+      SQLite Storage
+            ↓
+    Keyword Filter (Stage 1)
+            ↓
+  Embedding Similarity (Stage 2)
+            ↓
+  Groq LLM Classifier (Stage 3)
+            ↓
+ OpenPaws Alignment Scoring (Stage 4)
+            ↓
+    Ensemble Relevance Ranking
+            ↓
+     Weekly Digest Generator
+            ↓
+   Streamlit Advocacy Dashboard
+```
+> **[System Architecture]**<img width="1737" height="2949" alt="mermaid-diagram" src="https://github.com/user-attachments/assets/eb154172-64fa-4b6e-b41d-ea1dc887e681" />
+
+
+## Technical Architecture
+
+### Classification Pipeline
+
+Paw-dvocate uses a **4-stage layered classifier** designed to progressively reduce false positives while maximising recall of genuinely relevant bills.
+
+**Stage 1 - Keyword Filtering**
+Fast pattern matching against a curated dictionary of animal-related terms (`config/keywords.py`). Eliminates clearly irrelevant bills before any compute-heavy steps run. Returns a keyword density score.
+
+**Stage 2 - Embedding Similarity Scoring**
+Bills passing Stage 1 are encoded using `sentence-transformers` (`all-MiniLM-L6-v2`). Cosine similarity is computed against a set of reference animal welfare sentences. This catches semantically relevant bills that don't use explicit keywords.
+
+**Stage 3 - Groq API Reasoning Classifier**
+Bills above the similarity threshold are sent to **Llama-3.3-70B via Groq's free API tier** for zero-shot classification into `pro-animal`, `anti-animal`, or `neutral`. The LLM also returns a confidence score and a plain-language reasoning summary.
+
+**Stage 4 - OpenPaws Alignment Scoring**
+The [OpenPaws 8B Instruct](https://huggingface.co/open-paws/8B-instruct-chat) model scores each classified bill for ethical alignment with animal liberation principles and generates an advocacy framing summary for the digest.
+
+**Ensemble Ranking**
+All four signal layers are combined into a final `relevance_score` using weighted averaging. The ensemble weighting is: keyword (15%) + embedding (20%) + Groq confidence (45%) + OpenPaws alignment (20%).
+
+---
+
+### Database Architecture
+
+Paw-dvocate uses a **single-file SQLite database** at `data/db/legislation.db`.
+
+SQLite was chosen deliberately for three reasons: it requires zero server infrastructure, it deploys directly to Streamlit Cloud as a file, and it handles 28,000+ records well within this read-heavy workload.
+
+**Schema - 4 tables:**
+
+| Table | Purpose |
+|---|---|
+| `bills` | Core bill metadata: title, state, sponsors, committee, status, session |
+| `classifications` | All 4 classifier outputs + final label, confidence, relevance score, risk level |
+| `embeddings` | Embedding vector file paths, model name, vector dimension |
+| `digest_history` | Record of every weekly digest generated with counts |
+
+---
+
+### Data Source Strategy
+
+LegiScan API approval was pending during development. Bulk session JSON exports were downloaded directly from the LegiScan website for California, Texas, and New York (2025–2026 session).
+
+The ingestion pipeline (`src/api/ingestor.py`) is designed to parse LegiScan's standard JSON schema, meaning **it will switch to live API ingestion without any redesign** once an API key is available - only the data source path changes.
+
+---
+
+## Project Structure
+
+```
+pawdvocate/
 │
 ├── config/
-│   ├── settings.py               # Paths, models, weights
-│   └── keywords.py               # Tiered keyword lists
+│   ├── settings.py           ← API keys, state codes, paths, model config
+│   └── keywords.py           ← Animal keyword dictionaries by category
 │
 ├── data/
-│   ├── raw/                      # LegiScan JSON exports
-│   │   ├── CA/                   # California session data
-│   │   ├── TX/                   # Texas session data
-│   │   └── NY/                   # New York session data
+│   ├── raw/                  ← LegiScan JSON exports (CA / TX / NY)
 │   ├── db/
-│   │   └── legislation.db        # SQLite database
-│   └── embeddings/               # Cached .npy centroid files
+│   │   └── legislation.db    ← SQLite database (28,600+ bills)
+│   └── embeddings/           ← Cached sentence-transformer vectors (.npy)
 │
 ├── src/
 │   ├── api/
-│   │   └── ingestor.py           # JSON → SQLite ingestion
+│   │   └── ingestor.py       ← JSON parser + batch ingestion pipeline
+│   │
 │   ├── classifier/
-│   │   ├── keyword_filter.py     # Phase 3: Keyword matching
-│   │   ├── embedding_scorer.py   # Phase 4: Semantic similarity
-│   │   ├── groq_classifier.py    # Phase 5/6: LLM classification
-│   │   ├── openpaws_scorer.py    # Phase 7: Alignment scoring
-│   │   └── ensemble.py           # Phase 7: Weighted ensemble
+│   │   ├── keyword_filter.py ← Stage 1: keyword density scoring
+│   │   ├── embedder.py       ← Stage 2: sentence-transformer encoding
+│   │   ├── similarity.py     ← Stage 2: cosine similarity scoring
+│   │   ├── groq_classifier.py← Stage 3: Llama-3.3-70B classification
+│   │   ├── alignment.py      ← Stage 4: OpenPaws alignment scoring
+│   │   └── ensemble.py       ← Weighted ensemble + final label
+│   │
 │   ├── digest/
-│   │   ├── generator.py          # Phase 8: Markdown digest
-│   │   └── email_sender.py       # Phase 12: Email export
+│   │   └── generator.py      ← Weekly Markdown digest generator
+│   │
 │   ├── scheduler/
-│   │   └── scheduler.py          # Phase 10: APScheduler automation
+│   │   └── scheduler.py      ← APScheduler automation
+│   │
 │   └── utils/
-│       └── db.py                 # SQLite CRUD helpers
+│       └── db.py             ← SQLite helpers (CRUD, connection management)
 │
 ├── frontend/
-│   └── app.py                    # Phase 11: Streamlit dashboard
+│   └── app.py                ← Streamlit dashboard
 │
 ├── tests/
-│   ├── test_phase3.py            # Keyword filter tests
-│   ├── test_phase4.py            # Embedding scorer tests
-│   ├── test_phase5.py            # Groq classifier tests
-│   ├── test_phase7.py            # Ensemble tests
-│   ├── test_phase8.py            # Digest generator tests
-│   ├── evaluation_phase9.py      # Accuracy benchmark
-│   └── manual_labels.csv         # Human labels for evaluation
+│   ├── test_phase1.py        ← Schema validation
+│   ├── test_phase2.py        ← Ingestion validation
+│   └── evaluation_phase9.py  ← Accuracy benchmark (≥85% target)
 │
-├── digests/                      # Generated Markdown reports
-└── logs/                         # Scheduler + evaluation logs
+├── digests/                  ← Weekly .md digest output files
+├── logs/                     ← Pipeline logs + evaluation reports
+├── pipeline.py               ← Full pipeline orchestrator
+├── requirements.txt
+└── README.md
 ```
 
 ---
 
-## 🚀 Quick Start
+## Phase-by-Phase Development
 
-### 1. Prerequisites
+Paw-dvocate was built incrementally in 11 phases, each validated before the next began.
 
-- Python 3.10+
-- A free [Groq API key](https://console.groq.com/) (required)
+**Phase 1 - SQLite Schema + Project Scaffolding**
+Designed the 4-table database schema and all CRUD helper functions. Established the project folder structure and logging utilities.
 
-### 2. Clone & Install
+**Phase 2 - JSON Ingestion Pipeline**
+Built the LegiScan JSON parser handling real-world schema variations (nested sponsors, referral arrays, status codes). Ingested 51,858 JSON files with progress tracking, inserting 28,604 bills across CA, TX, and NY.
+
+**Phase 3 - Keyword Classifier**
+Built a weighted keyword dictionary (`config/keywords.py`) with 200+ terms across categories: species, legislation type, welfare practices, and exploitation industries. Returns a keyword density score per bill.
+
+**Phase 4 - Embedding Similarity Scoring**
+Integrated `sentence-transformers` (`all-MiniLM-L6-v2`) to encode bill text. Vectors cached as `.npy` files in `data/embeddings/` to avoid recomputation. Bills scored by cosine similarity against curated reference sentences.
+
+**Phase 5 - Semantic Relevance Detection**
+Built the similarity threshold logic to identify which embedding-scored bills warrant LLM classification. Tuned thresholds using precision/recall trade-off analysis on a sample set.
+
+**Phase 6 - Groq LLM Classifier Integration**
+Integrated the Groq API (`llama-3.3-70b-versatile`) as the primary reasoning classifier. Returns classification label, confidence score (0–1), and plain-language reasoning stored in the `classifications` table.
+
+**Phase 7 - OpenPaws Alignment Scoring + Ensemble Ranking**
+Integrated the OpenPaws 8B Instruct model for ethical alignment scoring. Built the weighted ensemble that combines all four signal layers into a final `relevance_score` and `risk_level`.
+
+**Phase 8 - Markdown Digest Generator + Pipeline Orchestrator**
+Built the weekly digest generator producing structured Markdown reports covering new bills, updated bills, high-risk alerts, and welfare opportunities. Built `pipeline.py` as the single-command orchestrator.
+
+**Phase 9 - Evaluation Benchmark**
+Built `tests/evaluation_phase9.py` to validate classification accuracy against manually labelled samples. Target: ≥85% accuracy. Results saved to `logs/evaluation_report.txt`.
+
+**Phase 10 - Scheduler Automation**
+Integrated APScheduler to run the full pipeline daily at 02:00 and generate digests weekly on Sundays at 09:00.
+
+**Phase 11 - Streamlit Dashboard**
+Built the interactive advocacy dashboard with state filtering, risk-level grouping, and per-bill reasoning display.
+
+---
+
+## Setup Instructions
+
+### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-repo/legislation_monitor.git
-cd legislation_monitor
+git clone https://github.com/4nushree/Paw-dvocate.git
+cd Paw-dvocate
+```
 
+### 2. Create a virtual environment
+
+```bash
 python -m venv venv
-# Windows:
-venv\Scripts\activate
-# Linux/Mac:
+
+# Mac/Linux
 source venv/bin/activate
 
+# Windows
+venv\Scripts\activate
+```
+
+### 3. Install dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-### 3. Configure API Keys
+### 4. Configure environment variables
 
 Create a `.env` file in the project root:
 
-```env
-# Required — Groq free tier
-GROQ_API_KEY=gsk_your_groq_api_key_here
-
-# Optional — HuggingFace (for Open Paws primary backend)
-HF_TOKEN=hf_your_token_here
-
-# Optional — Email digest (Gmail)
-EMAIL_FROM=yourname@gmail.com
-EMAIL_PASSWORD=xxxx xxxx xxxx xxxx
-EMAIL_TO=recipient@example.com
+```
+GROQ_API_KEY=your_groq_api_key_here
 ```
 
-> **Gmail Setup:** Enable 2FA → go to [App Passwords](https://myaccount.google.com/apppasswords) → create one for "Mail".
+Get a free Groq API key at [console.groq.com](https://console.groq.com). No credit card required.
 
-### 4. Add LegiScan Data
+### 5. Add your data
 
-Place bulk JSON exports in:
+Place LegiScan JSON exports in `data/raw/` following the structure:
+
 ```
-data/raw/CA/   ← California session folder
-data/raw/TX/   ← Texas session folder
-data/raw/NY/   ← New York session folder
+data/raw/CA/2025-2026_Regular_Session/bill/*.json
+data/raw/TX/2025-2026_Regular_Session/bill/*.json
+data/raw/NY/2025-2026_General_Assembly/bill/*.json
 ```
 
-Each should contain: `bill.json`, `people.json`, `committee.json`, etc.
-
-### 5. Run the Pipeline
+### 6. Run the full pipeline
 
 ```bash
-# Full pipeline (ingest → classify → digest)
-python main.py --run-all
-
-# First run? Start with fewer bills to test:
-python main.py --run-all --max-bills 20
+python pipeline.py --run-all
 ```
 
----
-
-## 🛠️ Pipeline Commands
-
-### Full Pipeline
+Or run individual stages:
 
 ```bash
-python main.py --run-all                    # Everything: ingest → classify → digest
-python main.py --run-all --email            # Full pipeline + email digest
-python main.py --run-all --max-bills 100    # Limit Groq/OpenPaws to 100 bills
+python pipeline.py --ingest      # Ingest JSON files only
+python pipeline.py --classify    # Run classifier stack only
+python pipeline.py --digest      # Generate weekly digest only
 ```
 
-### Individual Operations
-
-```bash
-python main.py --ingest                     # Re-ingest raw JSON data
-python main.py --classify                   # Run all classification stages
-python main.py --digest                     # Generate digest from existing data
-python main.py --digest --days-back 7       # Digest for last 7 days only
-python main.py --email                      # Email the latest digest
-python main.py --email --email-to a@b.com   # Email to specific address
-```
-
-### Single Stage
-
-```bash
-python main.py --stage keyword              # Keyword filter only
-python main.py --stage embedding            # Embedding scorer only
-python main.py --stage groq --max-bills 50  # Groq LLM on 50 bills
-python main.py --stage openpaws             # Open Paws alignment
-python main.py --stage ensemble             # Weighted ensemble
-python main.py --stage digest               # Digest generation
-```
-
----
-
-## 📊 Streamlit Dashboard
+### 7. Launch the dashboard
 
 ```bash
 streamlit run frontend/app.py
 ```
 
-Opens at `http://localhost:8501` with:
-
-- **State selector** (CA / TX / NY / All)
-- **Risk/label/confidence filters**
-- **Anti-animal alerts** (high-risk bills)
-- **Pro-animal opportunities** (advocacy targets)
-- **Recent movement** (bills in progress)
-- **Distribution charts** by state and risk
-- **Full-text search** across all bills
-- **Raw data table** (expandable)
-
----
-
-## ⏰ Scheduler (Automation)
+### 8. Run the scheduler (optional)
 
 ```bash
-# Start scheduler (runs forever, Ctrl+C to stop)
 python src/scheduler/scheduler.py
-
-# Run pipeline now, then start scheduler
-python src/scheduler/scheduler.py --run-now
-
-# Test both jobs once, then exit
-python src/scheduler/scheduler.py --test
-```
-
-**Schedule:**
-| Job | When | What |
-|-----|------|------|
-| Daily Pipeline | Every day at 02:00 | keyword → embedding → groq → openpaws → ensemble |
-| Weekly Digest | Every Sunday at 09:00 | Generate Markdown intelligence report |
-
-Logs saved to `logs/scheduler.log`.
-
----
-
-## 🧪 Testing & Evaluation
-
-### Unit Tests
-
-```bash
-# Run all tests
-python -m pytest tests/ -v
-
-# Run a specific phase
-python -m pytest tests/test_phase3.py -v
-```
-
-### Accuracy Benchmark (Phase 9)
-
-```bash
-# Step 1: Generate sample CSV (20 bills)
-python tests/evaluation_phase9.py --generate
-
-# Step 2: Open tests/manual_labels.csv, fill 'human_label' column:
-#   pro_animal  |  anti_animal  |  neutral
-
-# Step 3: Compute metrics
-python tests/evaluation_phase9.py --evaluate
-
-# View saved report
-python tests/evaluation_phase9.py --show
-```
-
-**Target:** ≥ 85% classification accuracy
-
----
-
-## 🔧 Architecture
-
-### Pipeline Stages & Weights
-
-```
-   LegiScan JSON → Ingest → SQLite
-                      ↓
-   ┌─────────────────────────────────┐
-   │  Stage 1: Keyword Filter (15%) │  Fast: ~1 min
-   │  Stage 2: Embedding (20%)      │  Medium: ~7 min
-   │  Stage 3: Groq LLM (45%)      │  Slow: rate-limited
-   │  Stage 4: Open Paws (20%)     │  Slow: rate-limited
-   └─────────────────────────────────┘
-                      ↓
-              Weighted Ensemble
-                      ↓
-         Markdown Digest → Email
-                      ↓
-           Streamlit Dashboard
-```
-
-### Ensemble Weights
-
-| Signal | Weight | What it measures |
-|--------|--------|------------------|
-| Keyword Filter | 15% | Tiered keyword matching (strong/moderate/weak) |
-| Semantic Embedding | 20% | `all-MiniLM-L6-v2` cosine similarity to reference centroids |
-| Groq LLM | 45% | Llama 3.3 70B structured reasoning |
-| Open Paws Alignment | 20% | Framing analysis: pro-animal ↔ anti-animal scale |
-
-### Risk Levels
-
-| Level | Criteria |
-|-------|----------|
-| 🔴 High | Non-neutral + ≥60% confidence |
-| 🟡 Medium | Non-neutral + ≥30% confidence |
-| 🟢 Low | Neutral or < 30% confidence |
-
-### Database Tables
-
-| Table | Purpose |
-|-------|---------|
-| `bills` | Raw bill metadata (title, status, sponsors, etc.) |
-| `classifications` | All pipeline signals + final ensemble results |
-| `digest_history` | Log of generated digests |
-
----
-
-## 📧 Email Setup (Optional)
-
-1. **Enable 2-Factor Auth** on your Gmail
-2. Go to [App Passwords](https://myaccount.google.com/apppasswords)
-3. Generate a password for "Mail"
-4. Add to `.env`:
-   ```
-   EMAIL_FROM=you@gmail.com
-   EMAIL_PASSWORD=xxxx xxxx xxxx xxxx
-   EMAIL_TO=team@example.com
-   ```
-5. Test: `python main.py --email`
-
-**Preview without sending:**
-```bash
-python -m src.digest.email_sender --preview
-# Saves HTML file next to the digest for browser preview
 ```
 
 ---
 
-## 📋 Environment Variables
+## Deployment
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `GROQ_API_KEY` | ✅ Yes | Free Groq API key |
-| `HF_TOKEN` | ❌ No | HuggingFace token (falls back to Groq) |
-| `EMAIL_FROM` | ❌ No | Gmail sender address |
-| `EMAIL_PASSWORD` | ❌ No | Gmail App Password |
-| `EMAIL_TO` | ❌ No | Default email recipient |
+### Streamlit Cloud
 
----
+Paw-dvocate's frontend is deployed on Streamlit Cloud connected to this GitHub repository.
 
-## 🛡️ Design Decisions
+The SQLite database snapshot (`data/db/legislation.db`) is committed to the repository and read directly by the dashboard - no server infrastructure required.
 
-- **Cascading filters**: Low-cost stages (keyword/embedding) run first, reducing expensive LLM calls
-- **Resume-safe**: Every API call is immediately persisted; restarts skip completed work
-- **Rate-limit aware**: 2.5s delay between Groq calls, exponential backoff on failures
-- **No ORM**: Direct SQLite for simplicity and zero dependencies
-- **Weighted ensemble**: Reduces single-model volatility by combining 4 independent signals
-- **Offline-first**: Works with LegiScan bulk exports, no live API polling required
+**To deploy your own instance:**
 
----
+1. Push this repository to GitHub
+2. Go to [streamlit.io/cloud](https://streamlit.io/cloud)
+3. Click **New app** → select your repository
+4. Set **Main file path** to `frontend/app.py`
+5. Add your `GROQ_API_KEY` in the **Secrets** manager
+6. Deploy
 
-## 📝 License
+### Scheduler Deployment (optional)
 
-MIT
+To run the pipeline on a schedule in the cloud:
+
+- **GitHub Actions** - add a cron workflow to trigger `pipeline.py` daily
+- **Railway / Render / Fly.io** - deploy `src/scheduler/scheduler.py` as a background worker
 
 ---
 
-*Built with 🐾 for animal welfare advocacy*
+## Evaluation Methodology
+
+Classification accuracy is validated using `tests/evaluation_phase9.py`:
+
+1. 20 bills are sampled randomly from the `classifications` table
+2. Bill IDs are exported to `tests/manual_labels.csv` for human labelling
+3. The script compares `true_label` (manual) against `final_label` (predicted)
+4. Outputs accuracy, precision, recall, F1-score, and a confusion matrix
+5. Results saved to `logs/evaluation_report.txt`
+
+**Target: ≥85% classification accuracy**
+
+The ensemble scoring approach reduces false positives by requiring agreement across multiple signal layers before assigning high-confidence labels.
+
+> **[Classifier Output Example Placeholder]**
+
+---
+
+## Sample Digest Output
+
+> **[Digest Output Screenshot Placeholder]**
+
+Weekly digests are saved to `digests/` as Markdown files named `digest_YYYY-MM-DD.md`. Each digest contains:
+
+- **New Bills** - bills ingested since the last digest
+- **Updated Bills** - bills with status changes
+- **High-Risk Anti-Animal Alerts** - bills classified anti-animal with high relevance score
+- **High-Impact Welfare Opportunities** - pro-animal bills in active committee stages
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Language | Python 3.11+ |
+| Database | SQLite |
+| Embeddings | sentence-transformers (`all-MiniLM-L6-v2`) |
+| LLM Classifier | Groq API - Llama-3.3-70B (free tier) |
+| Alignment Scoring | OpenPaws 8B Instruct (HuggingFace) |
+| Scheduler | APScheduler |
+| Dashboard | Streamlit |
+| Deployment | Streamlit Cloud + GitHub |
+
+---
+
+## Limitations
+
+- **Bulk JSON used instead of live API** - LegiScan API approval was pending during development. The pipeline is API-ready but currently runs on downloaded session exports.
+- **Sponsor-history weighting partially implemented** - sponsor voting history signals are extracted but not yet used as a weighted feature in the ensemble.
+- **Committee influence weighting is basic** - committee prestige scoring uses a simple lookup rather than a learned model.
+- **OpenPaws 8B requires 16GB+ RAM locally** - the alignment layer falls back to the HuggingFace Inference API free tier when running on limited hardware.
+
+---
+
+## Future Improvements
+
+- **Real-time LegiScan API ingestion** - replace bulk exports with live API polling as sessions update
+- **Email digest alerts** - convert weekly Markdown digests to HTML and deliver via SMTP
+- **Multi-state comparison dashboard** - side-by-side view of how the same issue tracks across CA, TX, and NY simultaneously
+- **Sponsor-history learning model** - train a lightweight model on sponsor voting history to improve pro/anti signal quality
+- **Committee influence modelling** - weight bills by committee composition and historical passage rates
+- **PostgreSQL migration** - replace SQLite with PostgreSQL for production multi-user deployments
+- **Docker containerisation** - package the full pipeline for reproducible deployment
+
+---
+
+## Documentation
+
+The `documentation/` directory contains phase-by-phase explanations of system architecture decisions, classifier design rationale, and evaluation methodology.
+
+---
+
+## Acknowledgements
+
+- [LegiScan](https://legiscan.com/) for legislative data
+- [Open Paws](https://openpaws.ai/) for the animal advocacy alignment model
+- [Groq](https://groq.com/) for free LLM inference
+- [Streamlit](https://streamlit.io/) for the dashboard framework
+
+---
+
+*Built for the animal advocacy community. Every bill that harms animals passes because no one was watching. Paw-dvocate watches.*
