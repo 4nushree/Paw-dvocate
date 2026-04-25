@@ -10,7 +10,7 @@ and skipped by default. Run them with: pytest -m live
 
 import pytest
 from src.classifier.groq_classifier import (
-    classify_bill_groq,
+    classify_bill,
     _error_result,
     GROQ_API_URL,
     SYSTEM_PROMPT,
@@ -59,7 +59,7 @@ def test_classify_pro_animal_live():
         "description": "Increases penalties for animal cruelty to felony level",
         "subjects": "Animals",
     }
-    result = classify_bill_groq(bill)
+    result = classify_bill(bill)
     assert result["success"] is True
     assert result["groq_label"] == "pro_animal"
     assert result["groq_confidence"] > 0.5
@@ -72,7 +72,7 @@ def test_classify_neutral_live():
         "description": "Allocates funds for bridge repair",
         "subjects": "Transportation",
     }
-    result = classify_bill_groq(bill)
+    result = classify_bill(bill)
     assert result["success"] is True
     assert result["groq_label"] == "neutral"
 
@@ -80,7 +80,7 @@ def test_classify_neutral_live():
 @pytest.mark.live
 def test_return_format_live():
     bill = {"title": "Test Bill", "description": "A test"}
-    result = classify_bill_groq(bill)
+    result = classify_bill(bill)
 
     assert "groq_label" in result
     assert "groq_confidence" in result

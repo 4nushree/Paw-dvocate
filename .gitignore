@@ -1,9 +1,9 @@
-venv/
 .env
+venv/
 __pycache__/
 *.pyc
-data/db/*.db
 data/raw/
+data/db/
 data/embeddings/
 logs/
 digests/
